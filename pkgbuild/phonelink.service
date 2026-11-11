@@ -1,0 +1,18 @@
+[Unit]
+Description=Phonelink phone connection and tray service
+After=graphical-session.target
+PartOf=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=dbus
+BusName=org.omarchy.Phonelink
+ExecStart=/usr/bin/phonelink --tray
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=5
+UMask=0077
+
+[Install]
+WantedBy=graphical-session.target

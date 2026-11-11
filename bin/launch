@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+systemctl --user start phonelink.service
+exec /usr/bin/phonelink open

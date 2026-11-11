@@ -1,0 +1,11 @@
+<RCC><qresource prefix="/">
+<file>Main.qml</file>
+<file>nav-help.svg</file>
+<file>nav-history.svg</file>
+<file>nav-settings.svg</file>
+<file>nav-menu.svg</file>
+<file>agent-skill.md</file>
+<file alias="phonelink.svg">../pkgbuild/phonelink.svg</file>
+<file alias="i18n/en.json">i18n/en.json</file>
+<file alias="i18n/da.json">i18n/da.json</file>
+</qresource></RCC>

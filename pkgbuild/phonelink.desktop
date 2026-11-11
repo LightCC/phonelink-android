@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Phonelink (scrcpy)
+Name[da]=Phonelink (scrcpy)
+Comment=Manage USB and wireless phone mirroring
+Comment[da]=Administrer telefonspejling via USB og trådløs forbindelse
+Exec=/usr/bin/phonelink-launch
+Icon=phonelink
+Terminal=false
+Categories=Utility;
+StartupWMClass=phonelink
+Keywords=scrcpy;screen;phone;android;mirroring;
+Keywords[da]=scrcpy;skærm;telefon;android;spejling;

@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Install Phonelink for the current desktop user without root privileges."""
+from pathlib import Path
+import os, shutil, subprocess, sys
+root=Path(__file__).resolve().parent.parent
+if '--no-build' not in sys.argv:
+    subprocess.run([str(root/'bin/build')],check=True)
+home=Path.home()
+data=Path(os.environ.get('XDG_DATA_HOME',home/'.local/share'))
+config=Path(os.environ.get('XDG_CONFIG_HOME',home/'.config'))
+lib=home/'.local/lib/phonelink'
+bin_dir=home/'.local/bin'
+for directory in [lib,bin_dir,data/'applications',data/'icons/hicolor/scalable/apps',config/'systemd/user']:
+    directory.mkdir(parents=True,exist_ok=True)
+shutil.copy2(root/'build/phonelink',lib/'phonelink')
+for name in ['phonelink','phonelink-active','phonelink-offline']:
+    shutil.copy2(root/f'pkgbuild/{name}.svg',data/f'icons/hicolor/scalable/apps/{name}.svg')
+launcher=bin_dir/'phonelink'
+launcher.write_text('#!/bin/sh\nexec "$HOME/.local/lib/phonelink/phonelink" "$@"\n')
+launcher.chmod(0o755)
+launch=bin_dir/'phonelink-launch'
+launch.write_text('#!/bin/sh\nset -eu\nsystemctl --user start phonelink.service\nexec "$HOME/.local/bin/phonelink" open\n')
+launch.chmod(0o755)
+desktop=data/'applications/phonelink.desktop'
+desktop.write_text((root/'pkgbuild/phonelink.desktop').read_text().replace('/usr/bin/phonelink-launch','"'+str(launch)+'"'))
+service=config/'systemd/user/phonelink.service'
+if service.exists():shutil.copy2(service,service.with_suffix('.service.bak'))
+service.write_text((root/'pkgbuild/phonelink.service').read_text().replace('/usr/bin/phonelink --tray','%h/.local/lib/phonelink/phonelink --tray'))
+subprocess.run(['systemctl','--user','daemon-reload'],check=True)
+subprocess.run(['systemctl','--user','enable','--now','phonelink.service'],check=True)
+print('Installed Phonelink for '+str(home))

@@ -1,0 +1,27 @@
+pkgname=phonelink
+pkgver=0.0.0
+pkgrel=1
+pkgdesc='Tray connection manager for USB and wireless scrcpy'
+arch=('x86_64' 'aarch64')
+license=('MIT')
+depends=('qt6-base' 'qt6-declarative' 'qt6-wayland' 'qt6-svg' 'android-tools' 'scrcpy')
+makedepends=('gcc' 'make')
+source=()
+sha256sums=()
+
+build() {
+  cd "$startdir/.."
+  ./bin/build
+}
+
+package() {
+  cd "$startdir/.."
+  install -Dm755 build/phonelink "$pkgdir/usr/bin/phonelink"
+  install -Dm755 bin/launch "$pkgdir/usr/bin/phonelink-launch"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  for icon in phonelink phonelink-active phonelink-offline; do
+    install -Dm644 "pkgbuild/$icon.svg" "$pkgdir/usr/share/icons/hicolor/scalable/apps/$icon.svg"
+  done
+  install -Dm644 pkgbuild/phonelink.desktop "$pkgdir/usr/share/applications/phonelink.desktop"
+  install -Dm644 pkgbuild/phonelink.service "$pkgdir/usr/lib/systemd/user/phonelink.service"
+}
