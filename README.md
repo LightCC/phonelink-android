@@ -282,4 +282,6 @@ verification on each additional target environment.
 
 See [AGENTS.md](AGENTS.md) for source-workspace, installation and launcher instructions
 for coding agents, and [verification notes](docs/verification.md) for recorded checks.
-MIT licensed. Theme and translation support derive from the Omarchy app templates.
+MIT licensed, copyright (c) 2026 Michael Scott Leiter (@MikeLeiterDev). Theme and
+translation support derive from Omacut and Monologue (MIT, David Heinemeier Hansson);
+see [LICENSE](LICENSE) for both notices.
