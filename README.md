@@ -342,7 +342,7 @@ use its secure secret tool rather than requesting the code in chat.
 The app uses C++17, Qt Quick and qmake6. `bin/test` runs isolated settings and fake
 ADB/scrcpy executables. It covers endpoint validation, wrong-phone rejection, persistent
 phone details and endpoints, closure, retries, USB restoration, independent startup
-settings, responsive layouts and sidebar interaction. Fourteen tests passed on the
+settings, responsive layouts and sidebar interaction. Sixteen backend tests and ten bridge tests passed on the
 verified Omarchy desktop. A real phone, tray host and login session still need manual
 verification on each additional target environment.
 
