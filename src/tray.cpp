@@ -5,7 +5,12 @@
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
 #include <QDebug>
+#include <QDBusMetaType>
+#include <QIcon>
+#include <QImage>
 Tray::Tray(QObject *owner, Backend *backend) : QDBusAbstractAdaptor(owner), m_backend(backend) {
+    qDBusRegisterMetaType<TrayPixmap>();
+    qDBusRegisterMetaType<TrayPixmaps>();
     m_service = QString("org.kde.StatusNotifierItem-%1-1").arg(QCoreApplication::applicationPid());
     auto bus = QDBusConnection::sessionBus();
     bus.registerService(m_service);
@@ -15,7 +20,7 @@ Tray::Tray(QObject *owner, Backend *backend) : QDBusAbstractAdaptor(owner), m_ba
     m_watcher.addWatchedService("org.kde.StatusNotifierWatcher");
     connect(&m_watcher, &QDBusServiceWatcher::serviceRegistered, this, [this] { registerTray(); });
     connect(backend, &Backend::changed, this, [this] {
-        const auto icon = iconName();
+        const auto icon = iconKey();
         if (icon != m_lastIcon) {
             m_lastIcon = icon;
             emit NewIcon();
@@ -23,7 +28,7 @@ Tray::Tray(QObject *owner, Backend *backend) : QDBusAbstractAdaptor(owner), m_ba
     });
     registerTray();
 }
-QString Tray::iconName() const {
+QString Tray::iconKey() const {
     const auto s = m_backend->state();
     if (s.value("running").toBool())
         return "phonelink-active";
@@ -42,4 +47,31 @@ void Tray::registerTray() {
             qWarning() << "Tray registration:" << reply.error().message();
         call->deleteLater();
     });
+}
+
+// Send embedded icon pixels so user installs and fresh tray hosts do not depend on icon-theme caches.
+TrayPixmaps Tray::iconPixmap() const {
+    TrayPixmaps pixmaps;
+    for (int size : {24, 32, 64}) {
+        const QImage image = QIcon(":/" + iconKey() + ".svg").pixmap(size, size).toImage().convertToFormat(QImage::Format_ARGB32);
+        if (image.isNull()) continue;
+        QByteArray bytes;
+        bytes.reserve(image.width() * image.height() * 4);
+        for (int y = 0; y < image.height(); ++y) {
+            for (int x = 0; x < image.width(); ++x) {
+                const QRgb pixel = image.pixel(x, y);
+                // The StatusNotifierItem wire format is network-order ARGB, independent of CPU byte order.
+                bytes.append(char(qAlpha(pixel))); bytes.append(char(qRed(pixel)));
+                bytes.append(char(qGreen(pixel))); bytes.append(char(qBlue(pixel)));
+            }
+        }
+        pixmaps.append({image.width(), image.height(), bytes});
+    }
+    return pixmaps;
+}
+QDBusArgument &operator<<(QDBusArgument &argument, const TrayPixmap &pixmap) {
+    argument.beginStructure(); argument << pixmap.width << pixmap.height << pixmap.bytes; argument.endStructure(); return argument;
+}
+const QDBusArgument &operator>>(const QDBusArgument &argument, TrayPixmap &pixmap) {
+    argument.beginStructure(); argument >> pixmap.width >> pixmap.height >> pixmap.bytes; argument.endStructure(); return argument;
 }

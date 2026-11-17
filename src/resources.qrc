@@ -1,5 +1,7 @@
 <RCC><qresource prefix="/">
 <file>Main.qml</file>
+<file alias="phonelink-offline.svg">../pkgbuild/phonelink-offline.svg</file>
+<file alias="phonelink-active.svg">../pkgbuild/phonelink-active.svg</file>
 <file>nav-help.svg</file>
 <file>nav-history.svg</file>
 <file>nav-settings.svg</file>

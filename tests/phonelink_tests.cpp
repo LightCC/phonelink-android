@@ -11,6 +11,7 @@
 #include <QQuickWindow>
 #include <QQuickItem>
 #include "backend.h"
+#include "tray.h"
 #include "theme.h"
 #include "translator.h"
 class PhonelinkTests:public QObject {
@@ -33,6 +34,24 @@ private slots:
     for(const auto &file:QStringList{"connected","available","usb","identity","launches","arguments","android"})QFile::remove(root.filePath(file));
     QDir(root.filePath("state")).removeRecursively();
     write("mode","hold");write("endpoint","192.168.1.50:34567");
+ }
+ void trayPixelsRenderWithoutInstalledIcons(){
+    Backend b(nullptr,false);QObject owner;Tray tray(&owner,&b);
+    QCOMPARE(tray.category(),QString("SystemServices"));QVERIFY(tray.iconName().isEmpty());
+    const auto offline=tray.iconPixmap();QCOMPARE(offline.size(),3);
+    for(const auto &p:offline){
+        QCOMPARE(p.bytes.size(),p.width*p.height*4);
+        int opaque=0;for(int i=0;i<p.bytes.size();i+=4)if(uchar(p.bytes[i])>0)++opaque;
+        QVERIFY(opaque>p.width*p.height/4);
+        QCOMPARE(uchar(p.bytes[0]),uchar(0));
+    }
+    write("available","1");b.refresh();
+    QTRY_VERIFY_WITH_TIMEOUT(b.state().value("wirelessReady").toBool(),10000);
+    QVERIFY(tray.iconPixmap()[1].bytes!=offline[1].bytes);
+    const auto connected=tray.iconPixmap();QSignalSpy changed(&tray,&Tray::NewIcon);
+    b.Start();QTRY_VERIFY_WITH_TIMEOUT(b.state().value("running").toBool(),10000);
+    QVERIFY(tray.iconPixmap()[1].bytes!=connected[1].bytes);QVERIFY(changed.count()>0);
+    QVERIFY(offline[1].bytes.contains(QByteArray::fromHex("ffaeb9c8")));b.Stop();
  }
  void endpointsArePrivateAndValid(){
     QVERIFY(Backend::validEndpoint("192.168.1.50:34567"));QVERIFY(Backend::validEndpoint("100.118.49.98:30001"));

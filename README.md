@@ -285,3 +285,19 @@ for coding agents, and [verification notes](docs/verification.md) for recorded c
 MIT licensed, copyright (c) 2026 Michael Scott Leiter (@MikeLeiterDev). Theme and
 translation support derive from Omacut and Monologue (MIT, David Heinemeier Hansson);
 see [LICENSE](LICENSE) for both notices.
+
+
+## Tray icon troubleshooting
+
+The service exports embedded phone icon pixels through StatusNotifierItem, so its tray
+icon does not depend on system icon directories or a tray host's icon-theme cache.
+Per-user desktop entries use the installed SVG's absolute path; system packages use the
+standard hicolor icon name. The tray category is SystemServices.
+
+On Omarchy, pin the `phonelink` tray item to keep it outside the collapsed drawer. The
+tray group's location is a desktop preference, not an application-enforced change.
+To place that group beside the network indicator, use `omarchy bar move omarchy.tray
+--section right --before omarchy.network`. Preserve existing pinned items when adding
+Phonelink through the tray's pin controls. Other desktops use their own tray settings.
+An open panel may also have an ordinary window/dock entry; closing it leaves the tray
+service running and accessible.
