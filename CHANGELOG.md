@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Fix #2: render a recognizable phone icon directly through the system-tray protocol,
+including offline, connected and mirroring states. Per-user launcher icons resolve
+to the installed SVG path. Document pinning the tray next to network indicators.
+
 ## v0.0.1 — 2026-11-11
 
 Documentation release. Clarifies Omarchy / Android / scrcpy discovery and the distinction

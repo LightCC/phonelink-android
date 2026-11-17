@@ -47,7 +47,9 @@ before changing methods. A user unit or desktop entry can shadow a system instal
 Never remove settings, history or ADB keys during that switch.
 
 The desktop entry must keep the name **Phonelink (scrcpy)**, its scrcpy/Android/phone
-keywords, Icon=phonelink, StartupWMClass=phonelink, and a valid phonelink-launch Exec.
+keywords, StartupWMClass=phonelink, and a valid phonelink-launch Exec. The system
+package uses Icon=phonelink; the per-user installer resolves Icon to its installed SVG
+path so a long-running launcher does not depend on a stale icon-theme cache.
 The launcher starts the user service before showing its panel. Installing this desktop
 entry and its icon already makes the app available in Omarchy's Super+Space application
 launcher; typing scr or scrcpy should match it. Do not add an Omarchy menu extension or

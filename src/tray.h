@@ -1,6 +1,15 @@
 #pragma once
 #include "backend.h"
 #include <QDBusAbstractAdaptor>
+#include <QDBusArgument>
+#include <QList>
+
+struct TrayPixmap { int width; int height; QByteArray bytes; };
+Q_DECLARE_METATYPE(TrayPixmap)
+using TrayPixmaps = QList<TrayPixmap>;
+Q_DECLARE_METATYPE(TrayPixmaps)
+QDBusArgument &operator<<(QDBusArgument &argument, const TrayPixmap &pixmap);
+const QDBusArgument &operator>>(const QDBusArgument &argument, TrayPixmap &pixmap);
 #include <QDBusObjectPath>
 #include <QDBusServiceWatcher>
 class Tray : public QDBusAbstractAdaptor {
@@ -11,6 +20,7 @@ class Tray : public QDBusAbstractAdaptor {
     Q_PROPERTY(QString Title READ title)
     Q_PROPERTY(QString Status READ status)
     Q_PROPERTY(QString IconName READ iconName)
+    Q_PROPERTY(TrayPixmaps IconPixmap READ iconPixmap)
     Q_PROPERTY(QString IconThemePath READ iconThemePath)
     Q_PROPERTY(QString AttentionIconName READ iconName)
     Q_PROPERTY(QString OverlayIconName READ overlay)
@@ -19,12 +29,13 @@ class Tray : public QDBusAbstractAdaptor {
     Q_PROPERTY(QDBusObjectPath Menu READ menu)
   public:
     Tray(QObject *owner, Backend *backend);
-    QString category() const { return "Hardware"; }
+    QString category() const { return "SystemServices"; }
     QString id() const { return "phonelink"; }
     QString title() const { return "Phonelink"; }
     QString status() const { return "Active"; }
-    QString iconName() const;
-    QString iconThemePath() const { return "/usr/share/icons/hicolor/scalable/apps"; }
+    QString iconName() const { return {}; }
+    TrayPixmaps iconPixmap() const;
+    QString iconThemePath() const { return {}; }
     QString overlay() const { return {}; }
     uint windowId() const { return 0; }
     bool itemIsMenu() const { return false; }
@@ -41,6 +52,7 @@ class Tray : public QDBusAbstractAdaptor {
 
   private:
     void registerTray();
+    QString iconKey() const;
     Backend *m_backend;
     QDBusServiceWatcher m_watcher;
     QString m_service, m_lastIcon;

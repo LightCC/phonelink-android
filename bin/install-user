@@ -22,7 +22,7 @@ launch=bin_dir/'phonelink-launch'
 launch.write_text('#!/bin/sh\nset -eu\nsystemctl --user start phonelink.service\nexec "$HOME/.local/bin/phonelink" open\n')
 launch.chmod(0o755)
 desktop=data/'applications/phonelink.desktop'
-desktop.write_text((root/'pkgbuild/phonelink.desktop').read_text().replace('/usr/bin/phonelink-launch','"'+str(launch)+'"'))
+desktop.write_text((root/'pkgbuild/phonelink.desktop').read_text().replace('/usr/bin/phonelink-launch','"'+str(launch)+'"').replace('Icon=phonelink', 'Icon='+str(data/'icons/hicolor/scalable/apps/phonelink.svg')))
 service=config/'systemd/user/phonelink.service'
 if service.exists():shutil.copy2(service,service.with_suffix('.service.bak'))
 service.write_text((root/'pkgbuild/phonelink.service').read_text().replace('/usr/bin/phonelink --tray','%h/.local/lib/phonelink/phonelink --tray'))
