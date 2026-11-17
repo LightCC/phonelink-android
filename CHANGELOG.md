@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.3 — Guided service installation
+
+Add confirmed per-user installation from bundled source, native setup controls,
+preflight checks, login-start choice, progress, cancellation/retry and copyable agent
+instructions. Stage builds before stopping the service, serialize jobs, preserve phone
+data and restore prior installation files/service state on normal failure or cancel.
+Block replacement of system/custom installations and retain interrupted-job backups.
+
+
 ## 0.0.2 — Native plugin integration
 
 Add the native Omarchy manifest, phone bar widget, bounded service bridge, translated

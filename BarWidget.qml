@@ -11,6 +11,7 @@ Ui.BarWidget {
     property var snapshot: ({available: false, code: "checking"})
     property string output: ""
     property bool pendingOpen: false
+    readonly property var setupPanel: setupLoader.item
     readonly property string helperPath: decodeURIComponent(String(Qt.resolvedUrl("plugin/bridge.py")).slice(7))
     readonly property string stateText: {
         if (!snapshot.available) return strings.t(snapshot.code || "unavailable")
@@ -32,15 +33,31 @@ Ui.BarWidget {
         request.running = true
     }
     function open() {
+        if (!root.snapshot.available) { if (root.setupPanel) root.setupPanel.open(); return }
         if (request.running) { root.pendingOpen = true; return }
         root.output = ""
         request.command = ["python3", root.helperPath, "open", strings.t("noticeTitle"), strings.t("setupHint")]
         request.running = true
     }
-    // The widget opens the existing tiled app, not an additional shell popup.
-    function toggle() { open() }
-    function close() {}
-    readonly property bool opened: false
+    function toggle() { root.setupPanel.toggle() }
+    function close() { if (root.setupPanel) root.setupPanel.close() }
+    function closeForPopoutSwitch() { if (root.setupPanel) root.setupPanel.closeForPopoutSwitch() }
+    readonly property bool opened: root.setupPanel ? root.setupPanel.opened : false
+    readonly property bool popoutSwitchClosing: root.setupPanel ? root.setupPanel.popoutSwitchClosing : false
+    function injectSetup() {
+        if (!root.setupPanel) return
+        root.setupPanel.bar = root.bar
+        root.setupPanel.anchorItem = button
+        root.setupPanel.hostWidget = root
+    }
+    onBarChanged: injectSetup()
+    Loader {
+        id: setupLoader
+        active: true
+        source: Qt.resolvedUrl("plugin/SetupPanel.qml")
+        onLoaded: { root.injectSetup(); Qt.callLater(root.injectSetup) }
+        Connections { target: root.setupPanel; function onCompleted() { root.refresh() } }
+    }
 
     Process {
         id: request
@@ -66,7 +83,8 @@ Ui.BarWidget {
         tooltipText: strings.t("title") + " — " + root.stateText + "\n" + strings.t("clickHint")
         onPressed: function(code) {
             if (code === Qt.LeftButton) root.open()
-            else if (code === Qt.RightButton) root.refresh()
+            else if (code === Qt.RightButton) root.toggle()
+            else if (code === Qt.MiddleButton) root.refresh()
         }
         Image {
             anchors.centerIn: parent

@@ -22,28 +22,57 @@ The plugin is a bar widget that uses the existing Phonelink backend. It is not a
 second connection manager. The minimum backend capability is pluginIntegration,
 shipped with backend 0.0.2. Python 3 is required by the small IPC bridge.
 
-Install or update the backend first using the source installation steps below.
-For an existing per-user installation, stop phonelink.service before running the
-installer. Keep the backend enabled at login if you want connection monitoring
-without opening a window. Then install the native plugin:
+Install the native plugin, which includes the service source, installer, icons and unit:
 
 ```sh
 omarchy plugin add https://github.com/LightCC/phonelink-android.git --enable
 ```
 
-This command works after the native-plugin PR is merged into the default branch.
-The current development branch is feat/4-omarchy-plugin; it can be checked out for
-local validation or installed from a Git clone whose default branch is that branch.
-The plugin manager does not build/install the compiled backend or system packages.
-A missing, stopped or old backend is reported in the tooltip; a click can start an
-already installed user service. Guided installation/update is tracked separately
-in [issue #5](https://github.com/LightCC/phonelink-android/issues/5).
+The plugin manager installs the widget files. If the backend is missing, stopped or
+incompatible, click the phone icon to open **Service setup**. Right-click opens setup
+at any time; middle-click refreshes status. With a ready backend, left-click opens the
+existing tiled connection panel. Escape, Close or clicking outside dismisses setup.
+The shell summon route opens the connection panel when available and setup otherwise;
+`omarchy-shell phonelinkSetup open` always opens service setup.
 
-The phone icon shows waiting, connected and mirroring states. Left-click opens the
-existing tiled status panel; right-click refreshes status. There is no second popup,
-and the widget's shell open/summon route opens the same standalone panel. Close that
-window normally to hide it. There is no native popup for Escape or the shell hide
-route to dismiss.
+### Guided service installation
+
+Setup detects the installation method, installed/target versions, graphical user session
+and required dependencies. Review **Show installation locations** and **Start service
+at login**, then press **Confirm build and install**. A compatible stopped per-user
+backend can be started without rebuilding. Existing system packages, custom units,
+symlinked install files and unsupervised running backends are blocked from replacement;
+update those through their existing process.
+
+The confirmed worker copies bundled source into a private cache and builds there.
+The current service keeps running during the build. Before replacement it backs up
+owned installation files and records service/startup state, briefly stops the service,
+installs per-user files, starts it and verifies IPC. A failure or cancellation restores
+the previous files and service state. Active mirroring is requested again after a
+successful update or rollback. Settings, connection history and ADB keys are retained.
+The installed service runs independently of the plugin directory.
+
+Progress and bounded diagnostic output appear in the panel. **Cancel installation**
+stops the worker's command and rolls back a replacement when necessary. Closing setup
+or reloading the shell does not cancel an approved job; reopen it to see current status.
+Concurrent installs are rejected. A forced worker kill or power loss during replacement
+leaves backups and an interrupted status; a new install is blocked until those files
+and service state have been reviewed. This exceptional recovery is manual/agent-assisted.
+
+No automatic package download or privilege escalation is performed. Missing dependencies
+show an Omarchy package command. **Copy instructions for agent** copies the detected
+source path and repair guidance for you to paste into your chosen agent; it does not
+send messages or authorize privileged work. Review its proposed changes before approving.
+If Python is absent, the widget cannot launch setup: install Python and the documented
+dependencies from a terminal first.
+
+Setup jobs, source snapshots, logs and backups are stored under
+`${XDG_CACHE_HOME:-~/.cache}/phonelink/service-setup/`, with owner-only job directories.
+Successful and normally rolled-back jobs remove their transaction marker but retain
+diagnostics/backups. You may delete completed job directories to reclaim disk space;
+never remove an active or interrupted job before recovery. Logs can include local paths.
+Phone debugging approvals are a separate workflow, tracked in
+[issue #1](https://github.com/LightCC/phonelink-android/issues/1).
 
 ```sh
 omarchy plugin list --json
@@ -64,8 +93,9 @@ lease; disabling one bar does not hide another monitor's live widget.
 Disabling/removing the plugin does not disable or uninstall the separately installed
 backend. To stop that backend, use systemctl --user disable --now phonelink.service.
 The standalone app and generic tray continue to work without the native plugin.
-No plugin action installs packages, requests sudo, runs ADB directly or rearranges
-unrelated bar items. Backend errors, timeouts and unavailable setup are reported.
+Guided setup installs the service only after confirmation. It never installs system
+packages, requests sudo, runs ADB directly or rearranges unrelated bar items. Backend
+errors, timeouts and unavailable setup are reported.
 
 Validate a clean plugin checkout on Omarchy:
 
@@ -74,7 +104,7 @@ Validate a clean plugin checkout on Omarchy:
 ./bin/test
 ```
 
-The plugin check validates manifest paths, runs isolated bridge tests and lints the
+The plugin check validates manifest paths, runs isolated bridge/installer tests and lints the
 QML against the installed Omarchy shell imports. The temporary qs import alias used
 for lint is outside the plugin directory. Plugin repositories must not contain
 symlinks. Check the installed shell API when changing widget or lifecycle contracts.
@@ -138,7 +168,9 @@ installation on the development Omarchy desktop.
 ./bin/install-user --no-build
 ```
 
-Without `--no-build`, the installer builds first. It installs the binary at
+Without `--no-build`, the installer builds first. `--no-service` writes the files and
+reloads systemd without enabling/starting the service; the guided worker uses this
+option to apply the confirmed startup choice and verify the installation. It installs the binary at
 `~/.local/lib/phonelink/phonelink`, commands under `~/.local/bin/`, the launcher at
 `~/.local/share/applications/phonelink.desktop`, and phone icons under
 `~/.local/share/icons/hicolor/scalable/apps/`. The service is installed at
@@ -342,7 +374,7 @@ use its secure secret tool rather than requesting the code in chat.
 The app uses C++17, Qt Quick and qmake6. `bin/test` runs isolated settings and fake
 ADB/scrcpy executables. It covers endpoint validation, wrong-phone rejection, persistent
 phone details and endpoints, closure, retries, USB restoration, independent startup
-settings, responsive layouts and sidebar interaction. Sixteen backend tests and ten bridge tests passed on the
+settings, responsive layouts and sidebar interaction. Sixteen backend tests and the bridge/installer suite pass on the
 verified Omarchy desktop. A real phone, tray host and login session still need manual
 verification on each additional target environment.
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "id": "io.github.lightcc.phonelink",
   "name": "Phonelink (scrcpy)",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Michael Scott Leiter (@MikeLeiterDev)",
   "license": "MIT",
-  "description": "Android USB and wireless screen mirroring controls for the Omarchy bar. Requires the Phonelink backend.",
+  "description": "Android USB and wireless screen mirroring controls for the Omarchy bar, with guided installation of the bundled Phonelink service.",
   "kinds": [
     "bar-widget"
   ],
