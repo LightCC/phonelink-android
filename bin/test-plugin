@@ -7,4 +7,4 @@ python3 -B -m unittest discover -s "$ROOT/plugin/tests" -p 'test_*.py'
 PLUGIN_IMPORT_DIR=$(mktemp -d)
 trap 'rm -rf "$PLUGIN_IMPORT_DIR"' EXIT
 ln -s "${OMARCHY_PATH:-/usr/share/omarchy}/shell" "$PLUGIN_IMPORT_DIR/qs"
-/usr/lib/qt6/bin/qmllint -I "$PLUGIN_IMPORT_DIR" "$ROOT/BarWidget.qml"
+/usr/lib/qt6/bin/qmllint -I "$PLUGIN_IMPORT_DIR" "$ROOT/BarWidget.qml" "$ROOT/plugin/SetupPanel.qml"

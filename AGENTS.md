@@ -102,11 +102,28 @@ shell. Use the existing service through plugin/bridge.py; never create a second
 Quickshell process or parallel ADB monitor. Native plugin changes should pass
 bin/test-plugin; backend/tray changes should also pass bin/test.
 
-The widget opens the existing tiled panel. It has no native popup to dismiss with
-Escape or hide. Its open/toggle methods route to that panel. Missing/old backend
-messages must remain actionable; backend installation and upgrade UI belong to
-issue 5, while phone setup belongs to issue 1. Do not claim plugin add installs a
-compiled backend. Backend 0.0.2 advertises pluginIntegration in its state contract.
+Left-click opens the existing tiled panel when ready, or native guided setup when the
+backend is unavailable. Right-click opens setup, middle-click refreshes. Setup uses
+Ui.Panel/KeyboardPanel, dismisses with Escape/outside click, and exposes the
+phonelinkSetup open/close/toggle IPC target. Phone-debugging setup remains issue 1.
+Backend 0.0.2 advertises pluginIntegration in its state contract.
+
+plugin/setup.py owns guided per-user service installation, not ADB monitoring. Explicit
+confirmation is required before a detached, flock-serialized worker copies source to
+XDG_CACHE_HOME/phonelink/service-setup and builds. Keep the current service alive until
+the build succeeds; back up owned files and prior lifecycle before stopping it. Use
+bin/install-user --no-build --no-service, apply the confirmed login choice, verify IPC,
+and roll back failures/cancellation. Preserve config, history and ADB keys. Never
+silently replace system-managed/custom installs, symlinked files or unsupervised apps.
+A compatible stopped backend should start without requiring build tools. No sudo or
+package manager is invoked by setup; copyable agent instructions are user-mediated.
+A killed worker may leave an interrupted transaction: inspect backups and recorded
+paths/state before recovery, and never clear that guard merely to permit another install.
+Use isolated HOME/XDG paths and mock services for failure tests. Test cancellation,
+concurrency, rollback, source staging and live IPC on the target. Setup logs and job
+state must remain bounded and private, outside the plugin directory, so shell file
+watchers are not triggered by installer progress. The installed unit/binary must not
+depend on the plugin clone remaining present.
 
 The bridge forwards only a fixed boolean status summary. Keep subprocess calls
 bounded, use argument arrays and retain the private-data/markup regression test.

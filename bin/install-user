@@ -27,5 +27,6 @@ service=config/'systemd/user/phonelink.service'
 if service.exists():shutil.copy2(service,service.with_suffix('.service.bak'))
 service.write_text((root/'pkgbuild/phonelink.service').read_text().replace('/usr/bin/phonelink --tray','%h/.local/lib/phonelink/phonelink --tray'))
 subprocess.run(['systemctl','--user','daemon-reload'],check=True)
-subprocess.run(['systemctl','--user','enable','--now','phonelink.service'],check=True)
+if '--no-service' not in sys.argv:
+    subprocess.run(['systemctl','--user','enable','--now','phonelink.service'],check=True)
 print('Installed Phonelink for '+str(home))

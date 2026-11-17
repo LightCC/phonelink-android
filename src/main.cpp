@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     QGuiApplication app(argc, argv);
     app.setApplicationName("phonelink");
     app.setOrganizationName("omarchy");
-    app.setApplicationVersion("0.0.2");
+    app.setApplicationVersion("0.0.3");
     app.setDesktopFileName("phonelink");
     app.setWindowIcon(QIcon(":/phonelink.svg"));
     app.setQuitOnLastWindowClosed(false);
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (action == "--version") {
-        QTextStream(stdout) << "0.0.2\n";
+        QTextStream(stdout) << "0.0.3\n";
         return 0;
     }
     if (action == "skill") {
