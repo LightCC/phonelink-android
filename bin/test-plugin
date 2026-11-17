@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+omarchy plugin validate "$ROOT"
+python3 -B -m unittest discover -s "$ROOT/plugin/tests" -p 'test_*.py'
+# qmllint needs a filesystem alias for the shell's runtime-created qs import prefix.
+PLUGIN_IMPORT_DIR=$(mktemp -d)
+trap 'rm -rf "$PLUGIN_IMPORT_DIR"' EXIT
+ln -s "${OMARCHY_PATH:-/usr/share/omarchy}/shell" "$PLUGIN_IMPORT_DIR/qs"
+/usr/lib/qt6/bin/qmllint -I "$PLUGIN_IMPORT_DIR" "$ROOT/BarWidget.qml"

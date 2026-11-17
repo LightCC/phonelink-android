@@ -91,3 +91,27 @@ before mirroring. Pairing approvals remain on the phone; use a secure secret too
 an assistant needs a pairing code. Closing the panel hides it; normal scrcpy closure
 must not trigger crash recovery. The tray's start-at-login behavior is independent of
 showing the status panel and starting phone mirroring; both window options default off.
+
+
+## Native Omarchy plugin
+
+The root manifest declares io.github.lightcc.phonelink, with BarWidget.qml as its
+barWidget entry point. This is separate from the standalone src/Main.qml and from
+the systemd backend. Do not load ApplicationWindow or C++ context objects inside the
+shell. Use the existing service through plugin/bridge.py; never create a second
+Quickshell process or parallel ADB monitor. Native plugin changes should pass
+bin/test-plugin; backend/tray changes should also pass bin/test.
+
+The widget opens the existing tiled panel. It has no native popup to dismiss with
+Escape or hide. Its open/toggle methods route to that panel. Missing/old backend
+messages must remain actionable; backend installation and upgrade UI belong to
+issue 5, while phone setup belongs to issue 1. Do not claim plugin add installs a
+compiled backend. Backend 0.0.2 advertises pluginIntegration in its state contract.
+
+The bridge forwards only a fixed boolean status summary. Keep subprocess calls
+bounded, use argument arrays and retain the private-data/markup regression test.
+A short lease at XDG_RUNTIME_DIR/phonelink-plugin-active suppresses the standalone
+tray only while widget refreshes continue. Never persistently disable that tray
+merely because the native plugin was installed. On disable/remove or shell failure,
+the standalone service and its data must remain accessible after lease expiry.
+Do not package the developer's build artifacts or personal preview screenshots.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.2 — Native plugin integration
+
+Add the native Omarchy manifest, phone bar widget, bounded service bridge, translated
+status messages and explicit backend prerequisites. The existing service remains
+responsible for connections. A renewable runtime lease suppresses the duplicate
+tray icon and restores standalone access after plugin removal. Guided service
+installation is tracked separately in issue 5. Add bridge, lease and plugin checks.
+
 ## Unreleased
 
 Fix #2: render a recognizable phone icon directly through the system-tray protocol,

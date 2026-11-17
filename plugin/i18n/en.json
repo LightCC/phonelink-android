@@ -1,0 +1,18 @@
+{
+  "title": "Phonelink",
+  "checking": "Checking service…",
+  "missing": "Backend missing. Install it using bin/install-user; guided installation is tracked in issue #5.",
+  "upgrade": "Backend update required. Stop phonelink.service, install the current backend, then restart it.",
+  "stopped": "Service stopped. Click to start the installed user service.",
+  "unavailable": "Service unavailable. Check systemctl --user status phonelink.service.",
+  "runtime": "Cannot coordinate tray mode. Check the graphical session runtime directory.",
+  "ready": "Ready",
+  "mirroring": "Mirroring phone screen",
+  "wirelessReady": "Wireless debugging connected",
+  "usbReady": "USB debugging connected",
+  "waiting": "Waiting for phone",
+  "clickHint": "Click to open Phonelink · Right-click to refresh",
+  "noticeTitle": "Phonelink service setup",
+  "serviceError": "Cannot start the user service. Check systemctl --user status phonelink.service and install the backend using bin/install-user.",
+  "setupHint": "See the widget tooltip for service status. Install or update the backend using bin/install-user, then check systemctl --user status phonelink.service. Guided installation is tracked in issue #5."
+}
