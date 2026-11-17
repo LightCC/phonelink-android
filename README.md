@@ -5,6 +5,7 @@
 **Android screen mirroring (screen copy) for Omarchy, using scrcpy over USB debugging
 or wireless debugging.** Phonelink adds a tray app, a compact connection panel,
 reconnect controls, crash recovery, and persistent phone and connection history.
+It includes a native Omarchy bar plugin as well as the standalone tray app.
 It is designed and tested on Omarchy / Hyprland. Other Hyprland desktops may work
 when they provide the dependencies and session integration described below.
 
@@ -14,6 +15,71 @@ The sidebar expands with its menu button or **Ctrl+B**. Actions stay above the
 scrolling content; the three status tiles wrap as the window narrows.
 Closing the panel hides it while the service keeps running. The mirrored Android
 screen is a separate scrcpy window.
+
+## Native Omarchy plugin
+
+The plugin is a bar widget that uses the existing Phonelink backend. It is not a
+second connection manager. The minimum backend capability is pluginIntegration,
+shipped with backend 0.0.2. Python 3 is required by the small IPC bridge.
+
+Install or update the backend first using the source installation steps below.
+For an existing per-user installation, stop phonelink.service before running the
+installer. Keep the backend enabled at login if you want connection monitoring
+without opening a window. Then install the native plugin:
+
+```sh
+omarchy plugin add https://github.com/LightCC/phonelink-android.git --enable
+```
+
+This command works after the native-plugin PR is merged into the default branch.
+The current development branch is feat/4-omarchy-plugin; it can be checked out for
+local validation or installed from a Git clone whose default branch is that branch.
+The plugin manager does not build/install the compiled backend or system packages.
+A missing, stopped or old backend is reported in the tooltip; a click can start an
+already installed user service. Guided installation/update is tracked separately
+in [issue #5](https://github.com/LightCC/phonelink-android/issues/5).
+
+The phone icon shows waiting, connected and mirroring states. Left-click opens the
+existing tiled status panel; right-click refreshes status. There is no second popup,
+and the widget's shell open/summon route opens the same standalone panel. Close that
+window normally to hide it. There is no native popup for Escape or the shell hide
+route to dismiss.
+
+```sh
+omarchy plugin list --json
+omarchy bar move io.github.lightcc.phonelink --section right --before omarchy.network
+omarchy plugin update io.github.lightcc.phonelink --yes
+omarchy plugin disable io.github.lightcc.phonelink
+omarchy plugin enable io.github.lightcc.phonelink
+omarchy plugin remove io.github.lightcc.phonelink --yes
+```
+
+The widget refreshes a small state summary every eight seconds. It renews a 25-second
+runtime lease that temporarily makes the standalone tray item passive. If the widget
+is disabled/removed, Python is unavailable, or the shell crashes, the lease expires
+and the standalone tray returns within 25 seconds (plus its one-second check interval).
+The service and phone data stay intact. Multiple monitor instances renew the same
+lease; disabling one bar does not hide another monitor's live widget.
+
+Disabling/removing the plugin does not disable or uninstall the separately installed
+backend. To stop that backend, use systemctl --user disable --now phonelink.service.
+The standalone app and generic tray continue to work without the native plugin.
+No plugin action installs packages, requests sudo, runs ADB directly or rearranges
+unrelated bar items. Backend errors, timeouts and unavailable setup are reported.
+
+Validate a clean plugin checkout on Omarchy:
+
+```sh
+./bin/test-plugin
+./bin/test
+```
+
+The plugin check validates manifest paths, runs isolated bridge tests and lints the
+QML against the installed Omarchy shell imports. The temporary qs import alias used
+for lint is outside the plugin directory. Plugin repositories must not contain
+symlinks. Check the installed shell API when changing widget or lifecycle contracts.
+The widget follows Omarchy theme sizing and language through host components; English
+and Danish catalogs are supplied. No marketplace submission has been made.
 
 ## Compatibility: Omarchy and other Hyprland desktops
 

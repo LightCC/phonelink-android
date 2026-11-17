@@ -1,0 +1,18 @@
+{
+  "title": "Phonelink",
+  "checking": "Kontrollerer tjenesten…",
+  "missing": "Backend mangler. Installér med bin/install-user; vejledt installation følges i sag #5.",
+  "upgrade": "Opdatér backend. Stop phonelink.service, installér den aktuelle backend, og start igen.",
+  "stopped": "Tjenesten er stoppet. Klik for at starte den installerede brugertjeneste.",
+  "unavailable": "Tjenesten er utilgængelig. Kontrollér systemctl --user status phonelink.service.",
+  "runtime": "Kan ikke koordinere systembakken. Kontrollér sessionens runtime-mappe.",
+  "ready": "Klar",
+  "mirroring": "Spejler telefonens skærm",
+  "wirelessReady": "Trådløs fejlfinding tilsluttet",
+  "usbReady": "USB-fejlfinding tilsluttet",
+  "waiting": "Venter på telefon",
+  "clickHint": "Klik for at åbne Phonelink · Højreklik for at opdatere",
+  "noticeTitle": "Opsætning af Phonelink-tjenesten",
+  "serviceError": "Kan ikke starte brugertjenesten. Kontrollér systemctl --user status phonelink.service og installér backend med bin/install-user.",
+  "setupHint": "Se tjenestens status i ikonet. Installér eller opdatér backend med bin/install-user, og kontrollér systemctl --user status phonelink.service. Vejledt installation følges i sag #5."
+}

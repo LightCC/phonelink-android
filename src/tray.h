@@ -32,7 +32,8 @@ class Tray : public QDBusAbstractAdaptor {
     QString category() const { return "SystemServices"; }
     QString id() const { return "phonelink"; }
     QString title() const { return "Phonelink"; }
-    QString status() const { return "Active"; }
+    QString status() const;
+    static bool pluginLeaseActive(const QString &path);
     QString iconName() const { return {}; }
     TrayPixmaps iconPixmap() const;
     QString iconThemePath() const { return {}; }
@@ -56,4 +57,6 @@ class Tray : public QDBusAbstractAdaptor {
     Backend *m_backend;
     QDBusServiceWatcher m_watcher;
     QString m_service, m_lastIcon;
+    QTimer m_pluginPoll;
+    QString m_lastStatus;
 };

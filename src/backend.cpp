@@ -76,7 +76,8 @@ QVariantMap Backend::preferences() const {
             {"showPanel", m_settings.value("showPanel", false).toBool()}};
 }
 QVariantMap Backend::state() const {
-    return {{"usbPresent", m_usbPresent},
+    return {{"pluginIntegration", true},
+            {"usbPresent", m_usbPresent},
             {"usb", m_usbStatus},
             {"usbReady", m_usbReady},
             {"usbId", m_usbId},

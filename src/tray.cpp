@@ -8,6 +8,9 @@
 #include <QDBusMetaType>
 #include <QIcon>
 #include <QImage>
+#include <QDateTime>
+#include <QFile>
+#include <QStandardPaths>
 Tray::Tray(QObject *owner, Backend *backend) : QDBusAbstractAdaptor(owner), m_backend(backend) {
     qDBusRegisterMetaType<TrayPixmap>();
     qDBusRegisterMetaType<TrayPixmaps>();
@@ -26,6 +29,12 @@ Tray::Tray(QObject *owner, Backend *backend) : QDBusAbstractAdaptor(owner), m_ba
             emit NewIcon();
         }
     });
+    m_pluginPoll.setInterval(1000);
+    connect(&m_pluginPoll, &QTimer::timeout, this, [this] {
+        const auto current = status();
+        if (current != m_lastStatus) { m_lastStatus = current; emit NewStatus(current); }
+    });
+    m_pluginPoll.start();
     registerTray();
 }
 QString Tray::iconKey() const {
@@ -74,4 +83,20 @@ QDBusArgument &operator<<(QDBusArgument &argument, const TrayPixmap &pixmap) {
 }
 const QDBusArgument &operator>>(const QDBusArgument &argument, TrayPixmap &pixmap) {
     argument.beginStructure(); argument >> pixmap.width >> pixmap.height >> pixmap.bytes; argument.endStructure(); return argument;
+}
+
+// A short lease restores standalone tray access even if the shell crashes or the widget is removed.
+bool Tray::pluginLeaseActive(const QString &path) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+    const QByteArray bytes = file.read(65);
+    if (bytes.size() > 64) return false;
+    bool ok = false;
+    const qint64 expiry = bytes.trimmed().toLongLong(&ok);
+    const qint64 now = QDateTime::currentSecsSinceEpoch();
+    return ok && expiry > now && expiry <= now + 30;
+}
+QString Tray::status() const {
+    const QString path = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) + "/phonelink-plugin-active";
+    return pluginLeaseActive(path) ? "Passive" : "Active";
 }

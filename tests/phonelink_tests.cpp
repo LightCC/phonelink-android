@@ -53,6 +53,14 @@ private slots:
     QVERIFY(tray.iconPixmap()[1].bytes!=connected[1].bytes);QVERIFY(changed.count()>0);
     QVERIFY(offline[1].bytes.contains(QByteArray::fromHex("ffaeb9c8")));b.Stop();
  }
+ void expiredPluginLeaseRestoresTray(){
+    QTemporaryDir dir;const QString path=dir.filePath("lease");
+    auto writeExpiry=[&](qint64 expiry){QFile file(path);QVERIFY(file.open(QIODevice::WriteOnly));file.write(QByteArray::number(expiry));};
+    QVERIFY(!Tray::pluginLeaseActive(path));
+    writeExpiry(QDateTime::currentSecsSinceEpoch()+25);QVERIFY(Tray::pluginLeaseActive(path));
+    writeExpiry(QDateTime::currentSecsSinceEpoch()-1);QVERIFY(!Tray::pluginLeaseActive(path));
+    writeExpiry(QDateTime::currentSecsSinceEpoch()+3600);QVERIFY(!Tray::pluginLeaseActive(path));
+ }
  void endpointsArePrivateAndValid(){
     QVERIFY(Backend::validEndpoint("192.168.1.50:34567"));QVERIFY(Backend::validEndpoint("100.118.49.98:30001"));
     QVERIFY(Backend::validEndpoint("172.16.1.2:65535"));QVERIFY(Backend::validEndpoint("10.0.0.1:1"));
